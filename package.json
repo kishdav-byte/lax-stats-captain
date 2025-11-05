@@ -1,0 +1,16 @@
+{
+  "name": "lax-stats-captain",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A comprehensive tool to manage your lacrosse team, track game scores and player stats in real-time, schedule your season, and generate AI-powered game summaries.",
+  "scripts": {
+    "start": "npx http-server . -o",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "http-server": "^14.1.1",
+    "typescript": "^5.5.3"
+  }
+}

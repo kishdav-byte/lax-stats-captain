@@ -1,0 +1,7 @@
+{
+  "name": "Lacrosse Stat Keeper AI",
+  "description": "A comprehensive tool to manage your lacrosse team, track game scores and player stats in real-time, schedule your season, and generate AI-powered game summaries.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
