@@ -19,6 +19,7 @@ import FeedbackComponent from './components/Feedback';
 import ApiKeyManager from './components/ApiKeyManager';
 import GameReport from './components/GameReport';
 import Analytics from './components/Analytics';
+import PlayerProfile from './components/PlayerProfile';
 import * as storageService from './services/storageService';
 import { AppDatabase } from './services/storageService';
 import * as apiKeyService from './services/apiKeyService';
@@ -59,6 +60,7 @@ const App: React.FC = () => {
   const [isApiKeySet, setIsApiKeySet] = useState(false);
   const [isLoadingApiKey, setIsLoadingApiKey] = useState(true);
   const [gameForReport, setGameForReport] = useState<Game | null>(null);
+  const [viewingPlayer, setViewingPlayer] = useState<{ player: Player; team: Team } | null>(null);
   
   const [loginError, setLoginError] = useState('');
 
@@ -648,6 +650,11 @@ const App: React.FC = () => {
     setCurrentView('gameReport');
   };
 
+  const handleViewPlayerProfile = (player: Player, team: Team) => {
+    setViewingPlayer({ player, team });
+    setCurrentView('playerProfile');
+  };
+
   const activeGame = games.find(g => g.id === activeGameId);
 
   if (isLoadingApiKey) {
@@ -687,6 +694,7 @@ const App: React.FC = () => {
           drillAssignments={drillAssignments}
           onAddDrillAssignment={handleAddDrillAssignment}
           currentUser={currentUser}
+          onViewPlayerProfile={handleViewPlayerProfile}
         />;
       case 'schedule':
         return <Schedule teams={teams} games={games} onAddGame={handleAddGame} onStartGame={startGame} onDeleteGame={handleDeleteGame} onReturnToDashboard={() => setCurrentView('dashboard')} onViewReport={handleViewReport}/>;
@@ -703,6 +711,18 @@ const App: React.FC = () => {
         ) : null;
       case 'analytics':
         return <Analytics teams={teams} games={games} onReturnToDashboard={() => setCurrentView('dashboard')} />;
+      case 'playerProfile':
+        return viewingPlayer ? (
+          <PlayerProfile
+            player={viewingPlayer.player}
+            team={viewingPlayer.team}
+            games={games}
+            onClose={() => {
+              setViewingPlayer(null);
+              setCurrentView('teams'); // Go back to the teams view
+            }}
+          />
+        ) : null;
       case 'trainingMenu':
         return <TrainingMenu onViewChange={setCurrentView} />;
       case 'faceOffTrainer':
@@ -862,7 +882,7 @@ const App: React.FC = () => {
               })}
             </div>
             <div className="hidden md:flex items-center">
-              <span className="text-gray-300 text-sm mr-4">Welcome, ${currentUser.username} (${currentUser.role})</span>
+              <span className="text-gray-300 text-sm mr-4">Welcome, {currentUser.username} ({currentUser.role})</span>
               <button onClick={handleLogout} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors">Logout</button>
             </div>
              {/* Mobile Menu Button */}
@@ -910,8 +930,8 @@ const App: React.FC = () => {
                 <div className="pt-4 pb-3 border-t border-gray-700">
                     <div className="flex items-center px-5">
                         <div>
-                            <div className="text-base font-medium leading-none text-white">${currentUser.username}</div>
-                            <div className="text-sm font-medium leading-none text-gray-400">${currentUser.role}</div>
+                            <div className="text-base font-medium leading-none text-white">{currentUser.username}</div>
+                            <div className="text-sm font-medium leading-none text-gray-400">{currentUser.role}</div>
                         </div>
                     </div>
                     <div className="mt-3 px-2 space-y-1">
@@ -928,7 +948,7 @@ const App: React.FC = () => {
       </nav>
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          {currentView !== 'game' && <Notifications 
+          {currentView !== 'game' && currentView !== 'playerProfile' && <Notifications 
             currentUser={currentUser} 
             requests={accessRequests} 
             teams={teams}
